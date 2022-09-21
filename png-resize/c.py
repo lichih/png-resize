@@ -33,8 +33,12 @@ def png_resize_c(dry_run: bool, srcpaths: List[str], dstpath: str, first_n: int,
         _[0] = os.path.getsize(_[1])
 
     pngs = sorted(pngs, key=lambda x: x[0], reverse=True)
+    total_size_before = sum([_[0] for _ in pngs[:first_n]]) // 1024
+    print(f'{total_size_before=:,}KB')
+    total_size_after = 0
     for size, fnSrc, fnDst, fnDir in tqdm(pngs[:first_n]):
         if not force_write and os.path.exists(fnDst):
+            total_size_after += os.path.getsize(fnDst)
             continue
         im = Image.open(fnSrc)
         im = im.resize((im.width//2, im.height//2), Image.LANCZOS)
@@ -43,6 +47,10 @@ def png_resize_c(dry_run: bool, srcpaths: List[str], dstpath: str, first_n: int,
                 os.makedirs(fnDir, mode=0o775, exist_ok=True)
                 fnDirs.add(fnDir)
             im.save(fnDst, optimize=True, quality=95)
+            total_size_after += os.path.getsize(fnDst)
+    total_size_after //= 1024
+    print(f'{total_size_before=:,}KB {total_size_after=:,}KB')
+    print(f'Reduced {(total_size_before-total_size_after):,}KB')
 
 if __name__ == '__main__':
     png_resize_c()
