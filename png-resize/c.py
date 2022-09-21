@@ -34,10 +34,10 @@ def png_resize_c(dry_run: bool, srcpaths: List[str], dstpath: str, first_n: int,
 
     pngs = sorted(pngs, key=lambda x: x[0], reverse=True)
     for size, fnSrc, fnDst, fnDir in tqdm(pngs[:first_n]):
-        im = Image.open(fnSrc)
-        im = im.resize((im.width//2, im.height//2), Image.LANCZOS)
         if not force_write and os.path.exists(fnDst):
             continue
+        im = Image.open(fnSrc)
+        im = im.resize((im.width//2, im.height//2), Image.LANCZOS)
         if not dry_run:
             if fnDir not in fnDirs:
                 os.makedirs(fnDir, mode=0o775, exist_ok=True)
